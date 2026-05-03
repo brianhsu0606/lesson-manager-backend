@@ -1,18 +1,10 @@
 import express from "express";
-import pkg from "pg";
-import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { pool } from "./src/db/db.js";
 
-dotenv.config();
-const { Pool } = pkg;
 const app = express();
 app.use(express.json());
-
-// DB 連線
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
 
 app.get("/", (req, res) => {
   res.send("Hello Backend");
