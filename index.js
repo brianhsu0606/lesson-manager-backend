@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Hello Backend");
+  res.json({ message: "Hello Backend" });
 });
 
 app.use("/", authRoutes);

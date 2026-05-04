@@ -3,11 +3,14 @@ import { pool } from "../db/db.js";
 
 export const getUsers = async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM users");
-    res.json(result.rows);
+    const result = await pool.query("SELECT id, email, name, created_at FROM users");
+    res.json({
+      message: "Get users success",
+      data: { users: result.rows },
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).send("DB error");
+    res.status(500).json({ message: "DB error" });
   }
 };
 
@@ -17,16 +20,18 @@ export const createUser = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const result = await pool.query("INSERT INTO users (email, password, name) VALUES ($1, $2, $3) RETURNING *", [
-      email,
-      hashedPassword,
-      name,
-    ]);
+    const result = await pool.query(
+      "INSERT INTO users (email, password, name) VALUES ($1, $2, $3) RETURNING id, email, name, created_at",
+      [email, hashedPassword, name],
+    );
 
-    res.status(201).json(result.rows[0]);
+    res.status(201).json({
+      message: "Create user success",
+      data: { user: result.rows[0] },
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Insert error");
+    res.status(500).json({ message: "Insert error" });
   }
 };
 
@@ -45,19 +50,22 @@ export const updateUser = async (req, res) => {
         password = COALESCE($2, password),
         name = $3
       WHERE id = $4
-      RETURNING *
+      RETURNING id, email, name, created_at
       `,
       [email, hashedPassword, name, id],
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).send("User not found");
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(result.rows[0]);
+    res.json({
+      message: "Update user success",
+      data: { user: result.rows[0] },
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Update error");
+    res.status(500).json({ message: "Update error" });
   }
 };
 
@@ -68,12 +76,12 @@ export const deleteUser = async (req, res) => {
     const result = await pool.query("DELETE FROM users WHERE id = $1 RETURNING *", [id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).send("User not found");
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.send("Deleted");
+    res.json({ message: "Delete user success" });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Delete error");
+    res.status(500).json({ message: "Delete error" });
   }
 };
