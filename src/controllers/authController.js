@@ -19,11 +19,7 @@ export const login = async (req, res) => {
       return res.status(401).send("Invalid password");
     }
 
-    const token = jwt.sign(
-      { userId: user.id },
-      "secret_key", // 之後會放 env
-      { expiresIn: "1h" },
-    );
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
     res.json({ token });
   } catch (err) {
