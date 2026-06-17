@@ -14,27 +14,6 @@ export const getUsers = async (req, res) => {
   }
 };
 
-export const createUser = async (req, res) => {
-  const { email, password, name } = req.body;
-
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const result = await pool.query(
-      "INSERT INTO users (email, password, name) VALUES ($1, $2, $3) RETURNING id, email, name, created_at",
-      [email, hashedPassword, name],
-    );
-
-    res.status(201).json({
-      message: "Create user success",
-      data: { user: result.rows[0] },
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Insert error" });
-  }
-};
-
 export const updateUser = async (req, res) => {
   const { id } = req.params;
   const { email, password, name } = req.body;
